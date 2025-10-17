@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weakest Link — Halloween Edition (6 Teams)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b0a0f; /* deep night */
+      --panel:#14121b;
+      --panel-2:#1b1826;
+      --accent:#ff7a00; /* pumpkin */
+      --accent-2:#9b5cff; /* witch purple */
+      --good:#65d46e; /* slime green */
+      --bad:#ff4d4f; /* blood red */
+      --text:#f2f0ff;
+      --muted:#b6b0d0;
+      --gold:#ffdf6f;
+      --shadow: 0 10px 25px rgba(0,0,0,.5), inset 0 0 40px rgba(255,122,0,.05);
+      --radius: 16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background: linear-gradient(180deg, #ff8a00 0%, #ff6a00 100%);
+      color:var(--text); font-family: 'Montserrat', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji';
+      line-height:1.4; overflow-y:auto;
+    }
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:16px;
+      padding:20px clamp(16px, 4vw, 40px); position:sticky; top:0; z-index:20;
+      background: linear-gradient(180deg, rgba(11,10,15,.95), rgba(11,10,15,.6) 60%, rgba(11,10,15,0));
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .title{
+      display:flex; align-items:center; gap:14px;
+    }
+    .title h1{
+      margin:0; font-size: clamp(26px, 3vw, 40px); letter-spacing:.5px;
+      font-family:'Creepster', system-ui; color:var(--accent);
+      text-shadow:0 0 18px rgba(255,122,0,.25), 0 0 3px rgba(255,122,0,.8);
+    }
+    .title .tag{
+      font-size:12px; padding:6px 10px; border-radius:999px; background:rgba(155,92,255,.18);
+      border:1px solid rgba(155,92,255,.35); color:#e6daff; font-weight:600; letter-spacing:.3px;
+    }
+    .actions{display:flex; gap:10px; flex-wrap:wrap}
+    button, .chip{
+      appearance:none; border:none; border-radius:12px; padding:10px 14px; font-weight:700; letter-spacing:.3px;
+      background:linear-gradient(180deg, rgba(255,122,0,.12), rgba(255,122,0,.08)); color:var(--text);
+      border:1px solid rgba(255,122,0,.35); box-shadow: var(--shadow);
+      cursor:pointer; transition:.2s transform, .2s filter, .2s background;
+    }
+    button:hover{filter:brightness(1.08)}
+    button:active{transform:translateY(1px) scale(.98)}
+    .btn-ghost{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.12)}
+    .btn-primary{background:linear-gradient(180deg, rgba(255,122,0,.35), rgba(255,122,0,.15)); border-color:rgba(255,122,0,.6)}
+    .btn-danger{background:linear-gradient(180deg, rgba(255,77,79,.30), rgba(255,77,79,.14)); border-color:rgba(255,77,79,.5)}
+    .btn-success{background:linear-gradient(180deg, rgba(101,212,110,.30), rgba(101,212,110,.14)); border-color:rgba(101,212,110,.55)}
+    .btn-purple{background:linear-gradient(180deg, rgba(155,92,255,.30), rgba(155,92,255,.14)); border-color:rgba(155,92,255,.55)}
+
+    main{display:grid; grid-template-columns:1fr; grid-template-areas:"right" "left"; gap:12px; padding:12px clamp(10px, 3vw, 24px); align-items:start}
+    }
+
+    /* Left side: Round / Chain / Controls */
+    .left{
+      grid-area:left; position:static; display:flex; flex-direction:column; gap:16px;
+    }
+    .right{ grid-area:right; }
+    .panel{background:linear-gradient(180deg, rgba(27,24,38,.8), rgba(20,18,27,.9)); border:1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius); box-shadow: var(--shadow); padding:12px;}
+    .panel h3{margin:0 0 10px; font-weight:800; letter-spacing:.3px; color:#fff}
+
+    .timer{
+      display:grid; grid-template-columns: 1fr auto; gap:8px; align-items:center;
+    }
+    .time{font-size: clamp(26px, 4vw, 42px); font-weight:800; font-variant-numeric: tabular-nums;
+      color:var(--gold); text-shadow:0 0 18px rgba(255,223,111,.25)}
+    .round-badge{font-size:12px; background:rgba(255,223,111,.12); border:1px solid rgba(255,223,111,.35); padding:6px 10px; border-radius:999px; color:var(--gold); font-weight:800}
+    .timer-controls{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+
+    .chain{
+      display:grid; gap:8px; margin-top:8px;
+    }
+    .chain-item{
+      display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 10px; border-radius:10px;
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.08);
+      font-weight:700; color:var(--muted);
+    }
+    .chain-item.active{color:#111; background:linear-gradient(180deg, var(--gold), #f2b705); border-color:#f1c85a; text-shadow:none}
+    .chain-item.done{color:var(--text); opacity:.45}
+
+    .bank{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px; border-radius:12px; background:linear-gradient(180deg, rgba(155,92,255,.2), rgba(155,92,255,.08)); border:1px solid rgba(155,92,255,.45);}
+    .bank strong{font-size:24px; color:#eadeff}
+
+    .play-controls{display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; margin-top:10px}
+    .play-controls button{padding:12px 10px; font-size:15px}
+
+    /* Right side: Teams grid */
+    .teams{
+      display:grid; grid-template-columns: repeat(3, 1fr); gap:14px;
+    }
+    @media (max-width: 1200px){ .teams{grid-template-columns: repeat(2, 1fr);} }
+    @media (max-width: 700px){ .teams{grid-template-columns: 1fr;} }
+
+    .team{position:relative; padding:10px; border-radius:var(--radius); background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08); box-shadow: var(--shadow);
+    }
+    .team.inactive{opacity:.45; filter:grayscale(.35)}
+    .team.current{outline:2px solid var(--accent); box-shadow:0 0 0 4px rgba(255,122,0,.2), var(--shadow)}
+    .team h4{margin:0 0 6px; display:flex; gap:8px; align-items:center; font-size:18px}
+    .team h4 input{
+      width:100%; background:transparent; border:none; color:var(--text); font-weight:800; font-size:18px; padding:4px 6px; border-radius:8px;
+      outline:1px dashed transparent; transition:.2s outline;
+    }
+    .team h4 input:focus{outline:1px dashed rgba(255,255,255,.25)}
+    .team .meta{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    .chip{font-size:12px; color:#eae7ff; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); border:1px solid rgba(255,255,255,.12)}
+    .stat-row{display:flex; justify-content:space-between; gap:8px; margin-top:8px; font-variant-numeric: tabular-nums;}
+    .stat-row .stat{background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.05)); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:6px 8px; flex:1; text-align:center}
+    .stat .label{font-size:11px; color:var(--muted)}
+    .stat .value{font-size:16px; font-weight:800}
+
+    .footer-controls{display:flex; gap:6px; flex-wrap:wrap; margin-top:12px}
+
+    /* Voting Modal */
+    .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(11,10,15,.75); z-index:50}
+    .modal.open{display:flex}
+    .modal-card{width:min(920px, 92vw); max-height:86vh; overflow:auto; background:linear-gradient(180deg, rgba(27,24,38,.98), rgba(20,18,27,.98)); border:1px solid rgba(255,255,255,.08); border-radius:18px; box-shadow: var(--shadow); padding:18px}
+    .modal-card h3{margin:0 0 12px}
+    .votes{display:grid; gap:10px}
+    .vote-row{display:grid; grid-template-columns: 160px 1fr; gap:10px; align-items:start}
+    .vote-row .voter{font-weight:800}
+    .vote-options{display:flex; gap:6px; flex-wrap:wrap}
+    .vote-btn{padding:8px 10px; font-size:13px}
+    .vote-btn.selected{outline:2px solid var(--accent); background:linear-gradient(180deg, rgba(255,122,0,.35), rgba(255,122,0,.15))}
+
+    .tally{margin-top:12px; display:grid; gap:8px}
+    .tally-row{display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03)); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:8px 10px}
+
+    .ghost{position:fixed; right:-80px; bottom:10px; width:200px; opacity:.12; pointer-events:none; filter:drop-shadow(0 10px 20px rgba(0,0,0,.3))}
+    .bat{position:absolute; left:-30px; top:-10px; width:70px; opacity:.25}
+
+    /* Settings */
+    .settings{display:grid; gap:10px}
+    .settings label{font-size:12px; color:var(--muted); font-weight:600}
+    .settings input, .settings textarea{width:100%; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); color:var(--text); border-radius:10px; padding:10px}
+    .settings small{color:var(--muted)}
+
+    .howto{font-size:13px; color:var(--muted) display:none;}
+    .linkish{color:#eadeff; text-decoration:underline; cursor:pointer}
+  
+/* Collapsible Chain */
+.chain.collapsed{max-height:0; overflow:hidden; padding:0 !important; margin:0 !important; border:0 !important}
+.chain-toggle{cursor:pointer; user-select:none; display:flex; align-items:center; gap:8px}
+.chain-toggle:focus{outline:2px dashed rgba(255,255,255,.35); outline-offset:4px}
+
+
+/* Ensure dropdown menu options are visible on all platforms */
+select{color:var(--text); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12)}
+select option, select optgroup{
+  color:#1a1326 !important;         /* dark text */
+  background:#ffffff !important;     /* light menu background */
+}
+select option:checked{
+  background:#efe6ff !important;     /* subtle highlight */
+  color:#000 !important;
+}
+
+
+/* MCQ styles */
+.mcq-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px}
+@media (max-width: 600px){ .mcq-grid{grid-template-columns:1fr} }
+.mcq-option{padding:12px 10px; font-size:15px; border-radius:10px; border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); cursor:pointer; text-align:left; font-weight:700}
+.mcq-option.correct{outline:2px solid var(--good); box-shadow:0 0 0 4px rgba(101,212,110,.18)}
+.mcq-option.wrong{outline:2px solid var(--bad); box-shadow:0 0 0 4px rgba(255,77,79,.18)}
+.mcq-letter{display:inline-grid; place-items:center; width:22px; height:22px; border-radius:6px; margin-right:8px;
+  background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)); font-size:12px; font-weight:800; color:#eae7ff}
+
+
+/* Footer credit */
+.footer-credit{margin:24px auto 12px; text-align:center; color:var(--muted); font-size:12px; letter-spacing:.2px}
+@media print{ .footer-credit{ color:#000 } }
+
+</style>
+</head>
+<body>
+  <header>
+    <div class="title">
+      <img class="bat" src="data:image/svg+xml;utf8,<?xml version='1.0' encoding='UTF-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 128'><path fill='%23b084ff' d='M20 72c20-8 40-8 60 0c20 8 40 8 60 0c20-8 40-8 60 0l-12-20l20-8l-24-8l12-20l-20 12l-8-24l-8 20l-20-12l8 20l-24 8l20 8z'/></svg>" alt="bat"/>
+      <h1>Weakest Link</h1>
+      <span class="tag">Halloween Edition 🎃</span>
+    </div>
+    <div class="actions">
+      <button class="btn-purple" id="openHowTo">How to Play</button>
+      <button class="btn-ghost" id="openSettings">Settings ⚙️</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="left">
+      <div class="panel">
+        <div class="timer">
+          <div>
+            <div class="round-badge">Round <span id="roundNum">1</span></div>
+            <div class="time" id="time">02:00</div>
+          </div>
+          <div class="bank">
+            <div>
+              <div style="font-size:12px; color:#eadeff; font-weight:700; letter-spacing:.2px">Bank</div>
+              <strong id="bankTotal">🍬 0</strong>
+            </div>
+            <button class="btn-purple" id="bankBtn" title="Save current chain value to the bank">Bank</button>
+          </div>
+        </div>
+        <div class="timer-controls">
+          <button class="btn-primary" id="startBtn">Start ⏱️</button>
+          <button class="btn-ghost" id="pauseBtn">Pause ⏸️</button>
+          <button class="btn-ghost" id="resetTimerBtn">Reset ⟲</button>
+        </div>
+      </div>
+
+      <div class="panel" id="questionPanel">
+        <h3>Question Deck</h3>
+        <div style="display:grid; gap:8px">
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">
+            <label style="font-size:12px; color:var(--muted); font-weight:700">Category</label>
+            <select id="qCategory" class="chip" style="background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:var(--text); padding:8px 10px; border-radius:10px">
+              <option value="All">All</option>
+              <option value="Grammar">Grammar</option>
+              <option value="Vocabulary">Vocabulary</option>
+              <option value="Pronunciation">Pronunciation</option>
+              <option value="Proper Response">Proper Response</option>
+              <option value="Reading Between the Lines">Reading Between the Lines</option>
+              <option value="Halloween Trivia">Halloween Trivia</option>
+</select>
+            <span class="chip" id="qCount">0 left</span>
+            <button class="btn-ghost" id="qShuffle">Shuffle ↻</button>
+          </div>
+          <div style="background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03)); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:12px">
+            <div style="font-size:12px; color:var(--muted); font-weight:700; letter-spacing:.2px">Question</div>
+            <div id="qText" style="font-weight:800; font-size:16px; margin-top:6px">Press “Next Question”</div>
+            
+            <div id="mcqWrap" style="margin-top:8px; display:none">
+              <div id="mcqOptions" class="mcq-grid"></div>
+            </div>
+<div id="aWrap" style="margin-top:8px; display:none">
+              <div style="font-size:12px; color:var(--muted); font-weight:700; letter-spacing:.2px">Answer</div>
+              <div id="aText" style="font-weight:800; font-size:16px; color:#eadeff"></div>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap">
+              <button class="btn-purple" id="qShow">Show Answer 👀</button>
+              <button class="btn-primary" id="qNext">Next Question ➡️</button>
+              <button class="btn-success" id="qMarkCorrect">Mark Correct ✅</button>
+              <button class="btn-danger" id="qMarkWrong">Mark Wrong ❌</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 class="chain-toggle" id="chainToggle" role="button" tabindex="0" aria-expanded="false">Chain ▸</h3>
+        <div id="chain" class="chain collapsed"></div>
+        <div class="play-controls">
+          <button class="btn-success" id="correctBtn">✅ Correct</button>
+          <button class="btn-danger" id="wrongBtn">❌ Wrong</button>
+          <button class="btn-ghost" id="nextBtn" title="Skip to next team">➡️ Next Team</button>
+        </div>
+      </div>
+
+      <div class="panel howto">
+        Use <strong>Correct</strong>/<strong>Wrong</strong> to build the candy chain. <strong>Bank</strong> to save it (resets the chain). Timer runs for the whole round. At the end, open <strong>Voting</strong> to eliminate the weakest link.
+      </div>
+
+      <div class="panel">
+        <h3>Round Actions</h3>
+        <div class="footer-controls">
+          <button id="openVote" class="btn-purple">Start Voting 🗳️</button>
+          <button id="newRoundBtn" class="btn-primary">Next Round ➕</button>
+          <button id="resetGameBtn" class="btn-ghost">New Game ♻️</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="right">
+      <div id="teams" class="teams"></div>
+    </section>
+  </main>
+
+  <!-- Voting Modal -->
+  <div class="modal" id="voteModal">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px">
+        <h3>🗳️ Elimination Voting — Round <span id="voteRound">1</span></h3>
+        <div style="display:flex; gap:8px">
+          <button id="clearVotes" class="btn-ghost">Clear Votes</button>
+          <button id="closeVote" class="btn-ghost">Close</button>
+        </div>
+      </div>
+      <div class="votes" id="votes"></div>
+      <div class="tally" id="tally"></div>
+      <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap">
+        <button id="tallyBtn" class="btn-primary">Tally Votes</button>
+        <button id="eliminateBtn" class="btn-danger">Eliminate Selected ☠️</button>
+      </div>
+      <div style="margin-top:8px; font-size:12px; color:var(--muted)">Tip: In a tie, select a team in the tally to eliminate.</div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal" id="settingsModal">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px">
+        <h3>⚙️ Settings</h3>
+        <button id="closeSettings" class="btn-ghost">Close</button>
+      </div>
+      <div class="settings">
+        <div>
+          <label>Round Duration (minutes)</label>
+          <input id="roundMinsInput" type="number" min="1" max="15" step="1" value="2" />
+        </div>
+        <div>
+          <label>Chain Values (comma-separated)</label>
+          <input id="chainInput" type="text" value="50,100,200,300,450,600,800,1000" />
+          <small>These are the candy values for consecutive correct answers.</small>
+        </div>
+        <div>
+          <label>Theme Accent Emoji</label>
+          <input id="emojiInput" type="text" value="🍬" />
+        </div>
+        <div>
+          <button id="saveSettings" class="btn-primary">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How To Modal -->
+  <div class="modal" id="howtoModal">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px">
+        <h3>📘 How to Play</h3>
+        <button id="closeHowTo" class="btn-ghost">Close</button>
+      </div>
+      <div class="howto">
+        <ol>
+          <li><strong>Set team names</strong>: Click a team name to edit. There are 6 teams by default.</li>
+          <li><strong>Start the round</strong>: Press <em>Start</em>. Timer counts down for the entire round.</li>
+          <li><strong>Ask questions</strong> in a circle. Use <em>Correct</em> / <em>Wrong</em> / <em>Bank</em>.
+            <ul>
+              <li>Correct = move up the chain.</li>
+              <li>Bank = add the current chain value to <em>Bank</em> then reset the chain.</li>
+              <li>Wrong = chain resets to zero.</li>
+              <li>Use <em>Next Team</em> anytime to rotate the turn.</li>
+            </ul>
+          </li>
+          <li><strong>End of round</strong>: Open <em>Start Voting</em>.
+            <ul>
+              <li>Each team casts one vote to eliminate someone (not themselves).</li>
+              <li>Tally and eliminate the <em>Weakest Link</em>. Their card is dimmed and removed from turn order.</li>
+            </ul>
+          </li>
+          <li><strong>Next Round</strong>: Press <em>Next Round</em>. Bank carries over, stats persist.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <img class="ghost" alt="ghost" src="data:image/svg+xml;utf8,<?xml version='1.0' encoding='UTF-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'><path fill='%23ffffff' d='M128 16c-44 0-80 36-80 80v120c0 8 8 12 16 8l24-12l24 12l24-12l24 12l24-12l24 12c8 4 16 0 16-8V96c0-44-36-80-80-80z' opacity='.18'/></svg>"/>
+
+  <script>
+    const LS_KEY = 'weakestlink-halloween-v1';
+
+    const defaultNames = [
+      'Pumpkin Patch', 'Wicked Witches', 'Spooky Spirits', 'Creepy Crypt', 'Broomstick Crew', 'Vampire Coven'
+    ];
+
+    // Built-in Halloween question deck
+    const QUESTIONS = [
+  {cat:'Grammar', q:'If I ____ earlier, I wouldn’t have missed the bus.', a:'had left'},
+  {cat:'Grammar', q:'By this time tomorrow, we ____ our exams.', a:'will have finished'},
+  {cat:'Grammar', q:'She acts as if she ____ the project herself.', a:'owned'},
+  {cat:'Grammar', q:'Hardly ____ the match started when it began to rain.', a:'had'},
+  {cat:'Grammar', q:'I’d rather you ____ me later; I’m busy now.', a:'called'},
+  {cat:'Grammar', q:'The film, ____ was directed by Zhao, won several awards.', a:'which'},
+  {cat:'Grammar', q:'You ____ told me—you know I would’ve helped.', a:'should have'},
+  {cat:'Grammar', q:'We had the roof ____ last summer.', a:'repaired'},
+  {cat:'Grammar', q:'If only I ____ more careful with my words.', a:'were'},
+  {cat:'Grammar', q:'He denied ____ the message.', a:'having seen'},
+  {cat:'Grammar', q:'Not until I checked twice ____ I feel confident.', a:'did I'},
+  {cat:'Grammar', q:'She’s the kind of person ____ opinion everyone respects.', a:'whose'},
+  {cat:'Grammar', q:'We’re looking forward to ____ you next month.', a:'seeing'},
+  {cat:'Grammar', q:'I wish you ____ stop interrupting me.', a:'would'},
+  {cat:'Grammar', q:'The more you practise, the ____ you’ll get.', a:'better'},
+  {cat:'Grammar', q:'It’s time we ____ home.', a:'went'},
+  {cat:'Grammar', q:'He asked me where ____ the day before.', a:'I had gone'},
+  {cat:'Grammar', q:'She must ____ the keys—they’re not here.', a:'have forgotten'},
+  {cat:'Grammar', q:'I prefer coffee ____ tea.', a:'to'},
+  {cat:'Grammar', q:'Scarcely ____ the door when the phone rang.', a:'had I closed'},
+  {cat:'Grammar', q:'He promised ____ on time.', a:'to be'},
+  {cat:'Grammar', q:'That’s the first time I ____ sushi.', a:'have tried'},
+  {cat:'Grammar', q:'We couldn’t help ____ at the joke.', a:'laughing'},
+  {cat:'Grammar', q:'If you happen ____ Mike, tell him to text me.', a:'to see'},
+  {cat:'Grammar', q:'I’m used to ____ early.', a:'getting up'},
+  {cat:'Grammar', q:'She suggested that he ____ earlier next time.', a:'arrive'},
+  {cat:'Grammar', q:'Neither the coach nor the players ____ happy.', a:'were'},
+  {cat:'Grammar', q:'This is the student ____ essay won the prize.', a:'whose'},
+  {cat:'Grammar', q:'We’d better ____ now, or we’ll be late.', a:'leave'},
+  {cat:'Grammar', q:'I had my phone ____ while I was swimming.', a:'stolen'},
+  {cat:'Vocabulary', q:'Choose the best collocation: “strictly ____ rules.”', a:'observe'},
+  {cat:'Vocabulary', q:'“Cut down on” means:', a:'reduce'},
+  {cat:'Vocabulary', q:'Which word fits? “The plan is perfectly ____; let’s do it.”', a:'feasible'},
+  {cat:'Vocabulary', q:'Choose the correct adjective: “an ____ decision” (done without planning).', a:'impulsive'},
+  {cat:'Vocabulary', q:'Which noun completes the phrase? “make a strong ____”', a:'impression'},
+  {cat:'Vocabulary', q:'Closest meaning to “accountable”:', a:'responsible'},
+  {cat:'Vocabulary', q:'Best phrasal verb: “She ____ up with a brilliant idea.”', a:'came'},
+  {cat:'Vocabulary', q:'Choose the correct preposition: “similar ____ mine.”', a:'to'},
+  {cat:'Vocabulary', q:'Word formation: “The new policy improved staff ____ (MOTIVATE).”', a:'motivation'},
+  {cat:'Vocabulary', q:'Confusable pair: economic / economical — “This car is very ____ to run.”', a:'economical'},
+  {cat:'Vocabulary', q:'Collocation: “_____ a deadline.”', a:'meet'},
+  {cat:'Vocabulary', q:'Meaning of “backfire”:', a:'fail and cause harm'},
+  {cat:'Vocabulary', q:'Best option: “a highly ____ athlete.”', a:'competitive'},
+  {cat:'Vocabulary', q:'Phrasal verb: “They ____ out the survey last week.”', a:'carried'},
+  {cat:'Vocabulary', q:'Choose the nuance: “a ____ issue” (causing argument).', a:'controversial'},
+  {cat:'Vocabulary', q:'Collocation: “raise ____ about privacy.”', a:'questions / doubts / suspicions'},
+  {cat:'Vocabulary', q:'Closest meaning to “scarce”:', a:'rare'},
+  {cat:'Vocabulary', q:'Best verb: “to ____ an apology.”', a:'make'},
+  {cat:'Vocabulary', q:'Phrasal: “I’ll ____ up the meeting notes.”', a:'write up'},
+  {cat:'Vocabulary', q:'Choose the precise word: “environmental ____”', a:'damage / pollution / harm'},
+  {cat:'Vocabulary', q:'Collocation: “a ____ improvement.”', a:'significant'},
+  {cat:'Vocabulary', q:'Word formation: “Her ____ (PERSIST) finally paid off.”', a:'persistence'},
+  {cat:'Vocabulary', q:'Fixed phrase: “at the end” vs “in the end” — Choose for “finally, after difficulty.”', a:'in the end'},
+  {cat:'Vocabulary', q:'Phrasal: “We need to ____ down costs.”', a:'bring down'},
+  {cat:'Vocabulary', q:'Best verb: “____ a complaint.”', a:'make'},
+  {cat:'Vocabulary', q:'Confusable: historic / historical — “a ____ event that changed the country.”', a:'historic'},
+  {cat:'Vocabulary', q:'Collocation: “widely ____ research.”', a:'regarded / respected / considered'},
+  {cat:'Vocabulary', q:'Meaning of “roughly”:', a:'approximately'},
+  {cat:'Vocabulary', q:'Phrase: “on behalf of” means:', a:'instead of someone'},
+  {cat:'Vocabulary', q:'Phrasal: “Don’t ____ out—stick with your plan.”', a:'chicken'},
+  {cat:'Pronunciation', q:'Primary stress on the second syllable.', a:'relax'},
+  {cat:'Pronunciation', q:'Word that rhymes with “through”.', a:'blue'},
+  {cat:'Pronunciation', q:'Silent letter present.', a:'dumb'},
+  {cat:'Pronunciation', q:'Same vowel sound as “heart”.', a:'hard'},
+  {cat:'Pronunciation', q:'Noun vs verb stress — pick the verb form.', a:'record (re-CORD)'},
+  {cat:'Pronunciation', q:'Ending /s/ sound (not /z/).', a:'laughs'},
+  {cat:'Pronunciation', q:'Same sound as “vision” in the middle.', a:'division'},
+  {cat:'Pronunciation', q:'Which has a silent k?', a:'knob / know / knee'},
+  {cat:'Pronunciation', q:'Stress on the first syllable.', a:'camera'},
+  {cat:'Pronunciation', q:'Final sound /tʃ/.', a:'catch'},
+  {cat:'Pronunciation', q:'Same vowel sound as “could”.', a:'good'},
+  {cat:'Pronunciation', q:'Homophones pair.', a:'piece / peace'},
+  {cat:'Pronunciation', q:'Stress pattern oO (two syllables, stress on 2nd).', a:'alone'},
+  {cat:'Pronunciation', q:'Same vowel sound as “pair”.', a:'bear'},
+  {cat:'Pronunciation', q:'‑ed pronounced /ɪd/.', a:'started'},
+  {cat:'Pronunciation', q:'Contains /θ/.', a:'three'},
+  {cat:'Pronunciation', q:'Rhymes with “fate”.', a:'late'},
+  {cat:'Pronunciation', q:'Silent b.', a:'climb'},
+  {cat:'Pronunciation', q:'Stress on the third syllable (example).', a:'photography'},
+  {cat:'Pronunciation', q:'Same vowel as “bird”.', a:'burn'},
+  {cat:'Pronunciation', q:'Final /ʃən/.', a:'nation'},
+  {cat:'Pronunciation', q:'Homophone of “eight”.', a:'ate'},
+  {cat:'Pronunciation', q:'Which has a silent w?', a:'write'},
+  {cat:'Pronunciation', q:'Stress on COM in:', a:'committee'},
+  {cat:'Pronunciation', q:'Same vowel as “pool”.', a:'fool'},
+  {cat:'Pronunciation', q:'‑s pronounced /ɪz/.', a:'buses'},
+  {cat:'Pronunciation', q:'Contains /dʒ/.', a:'jam'},
+  {cat:'Pronunciation', q:'Stress on the second syllable.', a:'agree'},
+  {cat:'Pronunciation', q:'Rhymes with “mind”.', a:'kind'},
+  {cat:'Pronunciation', q:'Same vowel as “love”.', a:'cup'},
+  {cat:'Proper Response', q:'Appropriate reply to “How do you do?”', a:'How do you do.'},
+  {cat:'Proper Response', q:'Reply to “Would you mind opening the window?”', a:'Certainly—here you go.'},
+  {cat:'Proper Response', q:'Good response: “I’m afraid I can’t come tomorrow.”', a:'That’s a pity—maybe another time?'},
+  {cat:'Proper Response', q:'Reply to “Could you give me a hand with this box?”', a:'Sure—where should I put it?'},
+  {cat:'Proper Response', q:'Host says “Help yourself to some snacks.”', a:'No, thanks. I’m full. (or take some)'},
+  {cat:'Proper Response', q:'“Do you mind if I sit here?”', a:'No, go ahead.'},
+  {cat:'Proper Response', q:'“I didn’t mean to upset you.”', a:'Forget it—no worries.'},
+  {cat:'Proper Response', q:'“Thanks for the lift!”', a:'No problem—anytime.'},
+  {cat:'Proper Response', q:'“Can I borrow your notes?”', a:'Take them, but please return them.'},
+  {cat:'Proper Response', q:'“I’ve just passed my driving test!”', a:'Congratulations!'},
+  {cat:'Proper Response', q:'“Sorry I’m late; the bus broke down.”', a:'No problem—let’s start.'},
+  {cat:'Proper Response', q:'“Would you like some tea?”', a:'Yes, please.'},
+  {cat:'Proper Response', q:'“Can I speak to Mr. Rossi, please?”', a:'Speaking.'},
+  {cat:'Proper Response', q:'“Make yourself at home.”', a:'Thanks—that’s kind of you.'},
+  {cat:'Proper Response', q:'“Shall we split the bill?”', a:'Let’s do that.'},
+  {cat:'Proper Response', q:'“Do you fancy going to the concert?”', a:'Sounds great!'},
+  {cat:'Proper Response', q:'“Could you possibly send it today?”', a:'Sure, I’ll do it right away.'},
+  {cat:'Proper Response', q:'“What’s the matter?”', a:'Nothing much, thanks for asking.'},
+  {cat:'Proper Response', q:'“After you.”', a:'Thanks—very polite of you.'},
+  {cat:'Proper Response', q:'“Long time no see!”', a:'Yes, it’s been a while—how are you?'},
+  {cat:'Proper Response', q:'“Mind if I open the window?”', a:'Please do.'},
+  {cat:'Proper Response', q:'Hotel: “I’m afraid we’re fully booked.”', a:'That’s disappointing—any cancellations?'},
+  {cat:'Proper Response', q:'“Could you speak up a bit?”', a:'Okay, is this better?'},
+  {cat:'Proper Response', q:'“Let me know if you need anything.”', a:'I will, thanks.'},
+  {cat:'Proper Response', q:'“Do you happen to have a pen?”', a:'Yes—here you are.'},
+  {cat:'Proper Response', q:'“I’m sorry for the confusion.”', a:'Don’t be—these things happen.'},
+  {cat:'Proper Response', q:'“Could I leave a message?”', a:'Certainly—go ahead.'},
+  {cat:'Proper Response', q:'“Bless you!”', a:'Thanks!'},
+  {cat:'Proper Response', q:'“Do you mind if I join you?”', a:'Not at all—please do.'},
+  {cat:'Proper Response', q:'“I’ve failed the test again.”', a:'Sorry to hear that—want to talk about it?'},
+  {cat:'Reading Between the Lines', q:'“You will not be missed.” implies…', a:'I won’t be sad you’re leaving.'},
+  {cat:'Reading Between the Lines', q:'“That’s… an interesting outfit.” implies…', a:'Polite criticism.'},
+  {cat:'Reading Between the Lines', q:'Parent says “We’ll see.”', a:'Maybe later, probably no.'},
+  {cat:'Reading Between the Lines', q:'Flat tone “Good for you.”', a:'Sarcasm.'},
+  {cat:'Reading Between the Lines', q:'Teacher: “Can we talk after class?”', a:'Serious discussion.'},
+  {cat:'Reading Between the Lines', q:'“I wouldn’t count on it.”', a:'Unlikely.'},
+  {cat:'Reading Between the Lines', q:'“That’s one way of doing it.”', a:'Polite disagreement.'},
+  {cat:'Reading Between the Lines', q:'Irritated: “Do whatever you want.”', a:'Disapproval and giving up.'},
+  {cat:'Reading Between the Lines', q:'“He’s… different.”', a:'Negative/odd.'},
+  {cat:'Reading Between the Lines', q:'“Thanks for finally replying.”', a:'Annoyance about delay.'},
+  {cat:'Reading Between the Lines', q:'“I’m not sure this is the place for that.”', a:'Mild refusal.'},
+  {cat:'Reading Between the Lines', q:'“Let’s not rush into anything.”', a:'Wait and think more.'},
+  {cat:'Reading Between the Lines', q:'“That was brave.” after risky action', a:'Mixed praise/critique.'},
+  {cat:'Reading Between the Lines', q:'“It’s fine, I’ll manage.”', a:'Might still want help.'},
+  {cat:'Reading Between the Lines', q:'“Do you really need that?”', a:'Doubting necessity.'},
+  {cat:'Reading Between the Lines', q:'“If you say so.”', a:'Doubt.'},
+  {cat:'Reading Between the Lines', q:'After argument: “I’m not hungry.”', a:'Upset.'},
+  {cat:'Reading Between the Lines', q:'“We’re almost there.” after a while', a:'Soothing; maybe not so close.'},
+  {cat:'Reading Between the Lines', q:'“That’s ambitious.”', a:'Maybe too difficult.'},
+  {cat:'Reading Between the Lines', q:'“I’ll think about it.”', a:'Polite delay, often no.'},
+  {cat:'Reading Between the Lines', q:'“Maybe next time.”', a:'Future interest / often no now.'},
+  {cat:'Reading Between the Lines', q:'“No offense, but…”', a:'Criticism coming.'},
+  {cat:'Reading Between the Lines', q:'“It’s not the end of the world.”', a:'Manageable.'},
+  {cat:'Reading Between the Lines', q:'“I hear what you’re saying.”', a:'Polite disagreement.'},
+  {cat:'Reading Between the Lines', q:'“We’re working on it.”', a:'Progress is slow.'},
+  {cat:'Reading Between the Lines', q:'“That’s not really my thing.”', a:'Mild refusal.'},
+  {cat:'Reading Between the Lines', q:'“I’ll let you know.”', a:'Uncertain update later.'},
+  {cat:'Reading Between the Lines', q:'“You might want to check your answer.”', a:'It’s probably wrong.'},
+  {cat:'Reading Between the Lines', q:'At a party: “It’s getting late.”', a:'Time to leave.'},
+  {cat:'Reading Between the Lines', q:'“Is that what you’re wearing?”', a:'Disapproval of outfit.'},
+  {cat:'Halloween Trivia', q:'On which date is Halloween celebrated?', a:'October 31'},
+  {cat:'Halloween Trivia', q:'Which ancient festival is most linked to Halloween’s origins?', a:'Samhain'},
+  {cat:'Halloween Trivia', q:'In Ireland and Scotland, early jack-o’-lanterns were carved from:', a:'Turnips'},
+  {cat:'Halloween Trivia', q:'What do children traditionally say at doors to ask for sweets?', a:'Trick or treat'},
+  {cat:'Halloween Trivia', q:'Which two colors are most associated with Halloween?', a:'Orange and black'},
+  {cat:'Halloween Trivia', q:'A witch traditionally flies on a:', a:'Broomstick'},
+  {cat:'Halloween Trivia', q:'A bat is a:', a:'Mammal'},
+  {cat:'Halloween Trivia', q:'The day after Halloween is known as:', a:'All Saints’ Day'},
+  {cat:'Halloween Trivia', q:'The party game with apples floating in water is called:', a:'Bobbing for apples'},
+  {cat:'Halloween Trivia', q:'Which animal is commonly linked with witches?', a:'Black cat'},
+  {cat:'Halloween Trivia', q:'The friendly ghost from classic cartoons is:', a:'Casper'},
+  {cat:'Halloween Trivia', q:'Today, a jack-o’-lantern is typically made from a:', a:'Pumpkin'},
+  {cat:'Halloween Trivia', q:'Bonfires at Samhain were lit mainly to:', a:'Protect and purify'},
+  {cat:'Halloween Trivia', q:'The Salem witch trials took place in which U.S. state?', a:'Massachusetts'},
+  {cat:'Halloween Trivia', q:'Candy corn has how many colored layers?', a:'Three'},
+  {cat:'Halloween Trivia', q:'Vampires in folklore are traditionally harmed by:', a:'Sunlight'},
+  {cat:'Halloween Trivia', q:'A werewolf is said to transform during a:', a:'Full moon'},
+  {cat:'Halloween Trivia', q:'Which plant is famously used to repel vampires?', a:'Garlic'},
+  {cat:'Halloween Trivia', q:'In “trick or treat,” the “trick” implies:', a:'A playful prank'},
+  {cat:'Halloween Trivia', q:'Día de los Muertos, celebrated near Halloween, is mainly from:', a:'Mexico'},
+  {cat:'Halloween Trivia', q:'“Guising” (children in costume collecting treats) strongly comes from:', a:'Scotland'},
+  {cat:'Halloween Trivia', q:'A group of witches is called a:', a:'Coven'},
+  {cat:'Halloween Trivia', q:'The sticky thread decoration seen on porches is a:', a:'Spider web'},
+  {cat:'Halloween Trivia', q:'In many stories, to stop a vampire permanently you should:', a:'Drive a wooden stake through the heart'},
+  {cat:'Halloween Trivia', q:'The headless rider in an American tale set in Sleepy Hollow is the:', a:'Headless Horseman'},
+  {cat:'Halloween Trivia', q:'Who wrote The Legend of Sleepy Hollow?', a:'Washington Irving'},
+  {cat:'Halloween Trivia', q:'The word “Halloween” comes from:', a:'All Hallows’ Eve'},
+  {cat:'Halloween Trivia', q:'Which animal is a Halloween symbol of bad luck in some cultures?', a:'Black cat'},
+  {cat:'Halloween Trivia', q:'Besides orange and black, which color is also common in Halloween décor?', a:'Purple'},
+  {cat:'Halloween Trivia', q:'The use of pumpkins for jack-o’-lanterns was popularized largely in:', a:'United States'},
+];
+
+    const state = {
+      round: 1,
+      roundSeconds: 120,
+      timer: null,
+      remaining: 120,
+      bankTotal: 0,
+      chain: [50,100,200,300,450,600,800,1000],
+      chainIndex: -1,
+      emoji: '🍬',
+      teams: [],
+      currentTeam: 0,
+      voting: {
+        open: false,
+        selections: {} // voterIndex -> targetIndex
+      }
+    };
+
+    function load(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        if(!raw){
+          state.teams = defaultNames.map((n,i)=>makeTeam(n));
+          persist();
+        } else {
+          const saved = JSON.parse(raw);
+          Object.assign(state, saved);
+          if(!state.deck){ state.deck = { category: 'All', order: [], idx: -1, showAnswer: false }; }
+          // Defensive: names or structure
+          if(!Array.isArray(state.teams) || state.teams.length === 0){
+            state.teams = defaultNames.map((n,i)=>makeTeam(n));
+          }
+        }
+      }catch(e){
+        console.warn('Failed to load, using defaults', e);
+        state.teams = defaultNames.map((n,i)=>makeTeam(n));
+      }
+      // Clamp values
+      state.currentTeam = Math.max(0, Math.min(state.currentTeam ?? 0, state.teams.length-1));
+      state.remaining = typeof state.remaining === 'number' ? state.remaining : state.roundSeconds;
+    }
+
+    function persist(){
+      const copy = JSON.parse(JSON.stringify(state));
+      // Do not persist active timers
+      copy.timer = null;
+      localStorage.setItem(LS_KEY, JSON.stringify(copy));
+    }
+
+    function makeTeam(name){
+      return {
+        name,
+        active: true,
+        correct: 0,
+        wrong: 0,
+        banked: 0,
+        accuracy: 0
+      };
+    }
+
+    function fmtTime(s){
+      s = Math.max(0, Math.floor(s));
+      const m = Math.floor(s/60).toString().padStart(2,'0');
+      const ss = (s%60).toString().padStart(2,'0');
+      return `${m}:${ss}`;
+    }
+
+    function fmtCandy(x){
+      return `${state.emoji} ${x.toLocaleString()}`;
+    }
+
+    function computeAccuracy(t){
+      const total = t.correct + t.wrong;
+      t.accuracy = total ? (t.correct / total) : 0;
+    }
+
+    function render(){
+      // Header bits
+      document.getElementById('roundNum').textContent = state.round;
+      document.getElementById('time').textContent = fmtTime(state.remaining);
+      document.getElementById('bankTotal').textContent = fmtCandy(state.bankTotal);
+
+      // Chain
+      const chainEl = document.getElementById('chain');
+      chainEl.innerHTML = '';
+      state.chain.forEach((v, idx)=>{
+        const div = document.createElement('div');
+        div.className = 'chain-item ' + (idx === state.chainIndex ? 'active' : idx < state.chainIndex ? 'done' : '');
+        div.innerHTML = `<span>${fmtCandy(v)}</span><span>#${idx+1}</span>`;
+        chainEl.appendChild(div);
+      });
+
+      // Teams grid
+      const teamsEl = document.getElementById('teams');
+      teamsEl.innerHTML = '';
+      state.teams.forEach((t, i)=>{
+        computeAccuracy(t);
+        const card = document.createElement('div');
+        card.className = 'team' + (t.active ? '' : ' inactive') + (i === state.currentTeam ? ' current' : '');
+        card.innerHTML = `
+          <h4>
+            <img alt="jack" src="data:image/svg+xml;utf8,${encodeURIComponent(svgJack(i))}" width="20" height="20"/>
+            <input data-idx="${i}" value="${escapeHtml(t.name)}" />
+            ${t.active ? '' : '<span class="chip">☠️ Eliminated</span>'}
+          </h4>
+          <div class="meta">
+            <span class="chip">Turn ${i+1}</span>
+            ${i===state.currentTeam && t.active ? '<span class="chip" style="border-color:rgba(255,122,0,.6); background:rgba(255,122,0,.15)">Your turn ➡️</span>' : ''}
+          </div>
+          <div class="stat-row">
+            <div class="stat"><div class="label">Correct</div><div class="value" id="c${i}">${t.correct}</div></div>
+            <div class="stat"><div class="label">Wrong</div><div class="value" id="w${i}">${t.wrong}</div></div>
+            <div class="stat"><div class="label">Accuracy</div><div class="value">${Math.round(t.accuracy*100)}%</div></div>
+            <div class="stat"><div class="label">Banked</div><div class="value">${fmtCandy(t.banked)}</div></div>
+          </div>
+        `;
+        teamsEl.appendChild(card);
+      });
+
+      // Voting UI if open
+      if(state.voting.open){ renderVoting(); }
+
+      renderQPanel();
+
+      persist();
+    }
+
+    function escapeHtml(str){
+      return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
+    }
+
+    function svgJack(seed){
+      // simple jack-o-lantern SVG with hue shift by seed
+      const hue = (seed*53)%360;
+      return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>
+        <defs><linearGradient id='g' x1='0' x2='0' y1='0' y2='1'><stop offset='0%' stop-color='hsl(${hue}, 90%, 55%)'/><stop offset='100%' stop-color='hsl(${hue}, 90%, 42%)'/></linearGradient></defs>
+        <ellipse cx='32' cy='36' rx='24' ry='18' fill='url(#g)' stroke='rgba(0,0,0,.3)'/>
+        <rect x='28' y='10' width='8' height='8' rx='2' fill='hsl(${(hue+60)%360}, 50%, 30%)'/>
+        <path d='M20 30l6-4l6 4M32 26l6 4l6-4' stroke='#1a0d00' stroke-width='3' stroke-linecap='round'/>
+        <path d='M22 44c4 4 16 4 20 0' stroke='#1a0d00' stroke-width='3' fill='none' stroke-linecap='round'/>
+      </svg>`;
+    }
+
+    // --- Questions Deck ---
+    function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+
+    function buildDeck(category){
+      const cat = category || 'All';
+      const order = QUESTIONS.map((q,i)=> (cat==='All' || q.cat===cat) ? i : null).filter(i=>i!==null);
+      shuffle(order);
+      state.deck = state.deck || { category:'All', order:[], idx:-1, showAnswer:false };
+      state.deck.category = cat; state.deck.order = order; state.deck.idx = -1; state.deck.showAnswer = false;
+      renderQPanel(); persist();
+    }
+
+    function currentQA(){
+      const idx = state.deck?.order?.[state.deck.idx];
+      return (idx!==undefined) ? QUESTIONS[idx] : null;
+    }
+
+    function nextQuestion(){
+      if(!state.deck || !Array.isArray(state.deck.order) || state.deck.order.length===0){ buildDeck(state.deck?.category || 'All'); }
+      if(state.deck.idx < state.deck.order.length - 1){ state.deck.idx++; } else { flashTitle('Deck finished — reshuffled'); buildDeck(state.deck.category); }
+      state.deck.showAnswer = false; renderQPanel(); persist();
+    }
+
+    function toggleAnswer(){ state.deck.showAnswer = !state.deck.showAnswer; renderQPanel(); persist(); }
+    function markCorrect(){ handleCorrect(); nextQuestion(); }
+    function markWrong(){ handleWrong(); nextQuestion(); }
+
+    function renderQPanel(){
+      const qEl = document.getElementById('qText'); if(!qEl) return;
+      const aEl = document.getElementById('aText'); const wrap = document.getElementById('aWrap');
+      const cnt = document.getElementById('qCount'); const sel = document.getElementById('qCategory');
+      const total = state.deck?.order?.length || 0; const idx = (state.deck?.idx ?? -1); const left = Math.max(0, total - idx - 1);
+      if(cnt) cnt.textContent = `${left} left`;
+      if(sel) sel.value = state.deck?.category || 'All';
+      const qa = currentQA();
+      if(qa){ qEl.textContent = qa.q; aEl.textContent = qa.a; } else { qEl.textContent = 'Press “Next Question” to begin.'; aEl.textContent = ''; }
+      wrap.style.display = state.deck?.showAnswer ? 'block' : 'none';
+      renderOptions();
+    }
+
+    
+// --- MCQ enhancements ---
+function getGlobalIndex(){ return state.deck?.order?.[state.deck.idx]; }
+
+function getOptionsFor(idx){
+  if(!state.deck) return [];
+  state.deck.mcq = state.deck.mcq || {};
+  if(state.deck.mcq[idx]) return state.deck.mcq[idx].slice();
+
+  const qa = QUESTIONS[idx];
+  // pool of distractors: same category answers, excluding exact match
+  const pool = QUESTIONS.filter(q=> q.cat===qa.cat && q.a!==qa.a).map(q=> q.a);
+  // Fallback: if not enough in same category, allow global pool
+  let distractors = pool.slice();
+  if(distractors.length < 3){
+    const extra = QUESTIONS.map(q=> q.a).filter(a=> a!==qa.a && !distractors.includes(a));
+    distractors = distractors.concat(extra);
+  }
+  // pick three unique
+  const picked = [];
+  const used = new Set([qa.a]);
+  while(picked.length < 3 && distractors.length){
+    const j = Math.floor(Math.random()*distractors.length);
+    const cand = distractors.splice(j,1)[0];
+    if(!used.has(cand)){ used.add(cand); picked.push(cand); }
+  }
+  const opts = [qa.a, ...picked];
+  shuffle(opts);
+  state.deck.mcq[idx] = opts.slice();
+  return opts;
+}
+
+function renderOptions(){
+  const container = document.getElementById('mcqOptions');
+  const wrap = document.getElementById('mcqWrap');
+  const qa = currentQA();
+  if(!container || !wrap){
+    return;
+  }
+  if(!qa){
+    wrap.style.display = 'none';
+    container.innerHTML = '';
+    return;
+  }
+  const idx = getGlobalIndex();
+  const opts = getOptionsFor(idx);
+  const letters = ['A','B','C','D'];
+  container.innerHTML = '';
+  opts.forEach((opt, i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'mcq-option';
+    btn.setAttribute('data-value', opt);
+    btn.innerHTML = `<span class="mcq-letter">${letters[i]}</span>${opt}`;
+    btn.onclick = ()=>{
+      const correct = qa.a;
+      if(opt === correct){
+        btn.classList.add('correct');
+        markCorrect();
+      }else{
+        btn.classList.add('wrong');
+        markWrong();
+      }
+    };
+    container.appendChild(btn);
+  });
+  wrap.style.display = 'block';
+}
+
+
+    // --- Game mechanics ---
+    function startTimer(){
+      if(state.timer) return;
+      const tick = ()=>{
+        state.remaining -= 1;
+        if(state.remaining <= 0){
+          state.remaining = 0; stopTimer();
+          flashTitle('⏰ Time\'s up! Start Voting.');
+        }
+        render();
+      };
+      state.timer = setInterval(tick, 1000);
+      render();
+    }
+
+    function stopTimer(){
+      if(state.timer){ clearInterval(state.timer); state.timer = null; render(); }
+    }
+
+    function resetTimer(){
+      stopTimer();
+      state.remaining = state.roundSeconds;
+      render();
+    }
+
+    function nextTeam(){
+      const n = state.teams.length;
+      for(let step=1; step<=n; step++){
+        const idx = (state.currentTeam + step) % n;
+        if(state.teams[idx].active){ state.currentTeam = idx; break; }
+      }
+      render();
+    }
+
+    function handleCorrect(){
+      const t = state.teams[state.currentTeam];
+      if(!t.active) { nextTeam(); return; }
+      t.correct++;
+      if(state.chainIndex < state.chain.length - 1){ state.chainIndex++; }
+      render();
+      nextTeam();
+    }
+
+    function handleWrong(){
+      const t = state.teams[state.currentTeam];
+      if(!t.active) { nextTeam(); return; }
+      t.wrong++;
+      state.chainIndex = -1; // reset
+      render();
+      nextTeam();
+    }
+
+    function handleBank(){
+      if(state.chainIndex >= 0){
+        const value = state.chain[state.chainIndex];
+        state.bankTotal += value;
+        const t = state.teams[state.currentTeam];
+        if(t && t.active){ t.banked += value; }
+        state.chainIndex = -1;
+        flashTitle(`Banked ${fmtCandy(value)}!`);
+        render();
+      }
+    }
+
+    function flashTitle(msg){
+      const el = document.querySelector('.title h1');
+      const prev = el.textContent;
+      el.textContent = msg;
+      setTimeout(()=>{ el.textContent = 'Weakest Link'; }, 1200);
+    }
+
+    // --- Voting ---
+    function openVoting(){
+      state.voting.open = true; state.voting.selections = {};
+      document.getElementById('voteRound').textContent = state.round;
+      document.getElementById('voteModal').classList.add('open');
+      renderVoting();
+    }
+
+    function closeVoting(){
+      state.voting.open = false;
+      document.getElementById('voteModal').classList.remove('open');
+      render();
+    }
+
+    function renderVoting(){
+      const votesEl = document.getElementById('votes');
+      votesEl.innerHTML = '';
+      state.teams.forEach((t, voterIdx)=>{
+        if(!t.active) return; // eliminated don't vote
+        const row = document.createElement('div'); row.className = 'vote-row';
+        const voter = document.createElement('div'); voter.className = 'voter'; voter.textContent = t.name;
+        const opts = document.createElement('div'); opts.className = 'vote-options';
+        state.teams.forEach((cand, candIdx)=>{
+          if(!cand.active || candIdx===voterIdx) return;
+          const b = document.createElement('button'); b.className = 'vote-btn btn-ghost';
+          b.textContent = cand.name;
+          const sel = state.voting.selections[voterIdx];
+          if(sel === candIdx){ b.classList.add('selected'); }
+          b.onclick = ()=>{ state.voting.selections[voterIdx] = candIdx; renderVoting(); };
+          opts.appendChild(b);
+        });
+        row.appendChild(voter); row.appendChild(opts); votesEl.appendChild(row);
+      });
+      renderTally();
+    }
+
+    function renderTally(){
+      const counts = new Map();
+      const activeIdx = state.teams.map((t,i)=>t.active?i:null).filter(x=>x!==null);
+      activeIdx.forEach(i=>counts.set(i,0));
+      for(const [voter, target] of Object.entries(state.voting.selections)){
+        if(target!==undefined && counts.has(+target)) counts.set(+target, counts.get(+target)+1);
+      }
+      const tallyEl = document.getElementById('tally');
+      tallyEl.innerHTML = '';
+      // Suggest weakest/strongest based on accuracy
+      const activeTeams = state.teams.map((t,i)=>({t,i})).filter(o=>o.t.active);
+      activeTeams.forEach(o=>computeAccuracy(o.t));
+      const weakest = activeTeams.length? activeTeams.reduce((a,b)=> (a.t.accuracy<=b.t.accuracy? a : b)) : null;
+      const strongest = activeTeams.length? activeTeams.reduce((a,b)=> (a.t.accuracy>=b.t.accuracy? a : b)) : null;
+
+      const hint = document.createElement('div');
+      hint.className = 'tally-row';
+      hint.innerHTML = `<div>🔎 Suggestion — Weakest by accuracy: <strong>${weakest? weakest.t.name : '—'}</strong> (${weakest? Math.round(weakest.t.accuracy*100):0}%) • Strongest: <strong>${strongest? strongest.t.name : '—'}</strong></div>`;
+      tallyEl.appendChild(hint);
+
+      // Rows
+      activeIdx.forEach(i=>{
+        const row = document.createElement('div'); row.className = 'tally-row';
+        const count = counts.get(i) || 0;
+        row.innerHTML = `<div>${state.teams[i].name}</div><div><strong>${count}</strong> vote${count===1?'':'s'}</div>`;
+        row.onclick = ()=>{ // select for elimination
+          const all = tallyEl.querySelectorAll('.tally-row');
+          all.forEach(el=>el.style.outline='none');
+          row.style.outline = '2px solid var(--bad)'; row.style.outlineOffset = '2px';
+          row.dataset.selected = i;
+          tallyEl.dataset.selected = i;
+        };
+        tallyEl.appendChild(row);
+      });
+    }
+
+    function tallyVotes(){ renderTally(); flashTitle('Votes tallied!'); }
+
+    function eliminateSelected(){
+      const tallyEl = document.getElementById('tally');
+      const idx = +(tallyEl.dataset.selected || -1);
+      if(idx<0 || !state.teams[idx] || !state.teams[idx].active){
+        alert('Select a team in the tally to eliminate (ties need a decision).');
+        return;
+      }
+      state.teams[idx].active = false;
+      // Move currentTeam if we eliminated current
+      if(state.currentTeam === idx){ nextTeam(); }
+      closeVoting();
+      render();
+    }
+
+    // --- Settings ---
+    function openSettings(){
+      document.getElementById('roundMinsInput').value = Math.round(state.roundSeconds/60);
+      document.getElementById('chainInput').value = state.chain.join(',');
+      document.getElementById('emojiInput').value = state.emoji;
+      document.getElementById('settingsModal').classList.add('open');
+    }
+    function closeSettings(){ document.getElementById('settingsModal').classList.remove('open'); }
+    function saveSettings(){
+      const mins = Math.max(1, Math.min(15, parseInt(document.getElementById('roundMinsInput').value||'2',10)));
+      const chain = (document.getElementById('chainInput').value||'').split(',').map(s=>parseInt(s.trim(),10)).filter(n=>!isNaN(n) && n>0);
+      const emoji = (document.getElementById('emojiInput').value||'🍬').slice(0,2);
+      state.roundSeconds = mins*60; state.remaining = state.roundSeconds;
+      if(chain.length) { state.chain = chain; state.chainIndex = -1; }
+      state.emoji = emoji;
+      closeSettings(); render();
+    }
+
+    // --- Rounds / Reset ---
+    function nextRound(){
+      stopTimer();
+      state.round += 1;
+      state.remaining = state.roundSeconds;
+      state.chainIndex = -1;
+      // Keep bank; stats persist
+      flashTitle(`Round ${state.round}`);
+      render();
+    }
+
+    function resetGame(){
+      if(!confirm('Start a brand-new game? This clears stats but keeps team names.')) return;
+      stopTimer();
+      state.round = 1;
+      state.remaining = state.roundSeconds;
+      state.bankTotal = 0;
+      state.chainIndex = -1;
+      state.currentTeam = 0;
+      state.teams.forEach(t=>{ t.active=true; t.correct=0; t.wrong=0; t.banked=0; t.accuracy=0; });
+      render();
+    }
+
+    // --- Event wiring ---
+    function wire(){
+      document.getElementById('startBtn').onclick = startTimer;
+      document.getElementById('pauseBtn').onclick = stopTimer;
+      document.getElementById('resetTimerBtn').onclick = resetTimer;
+
+      document.getElementById('correctBtn').onclick = handleCorrect;
+      document.getElementById('wrongBtn').onclick = handleWrong;
+      document.getElementById('bankBtn').onclick = handleBank;
+      document.getElementById('nextBtn').onclick = nextTeam;
+
+      document.getElementById('openVote').onclick = openVoting;
+      document.getElementById('closeVote').onclick = closeVoting;
+      document.getElementById('clearVotes').onclick = ()=>{ state.voting.selections={}; renderVoting(); };
+      document.getElementById('tallyBtn').onclick = tallyVotes;
+      document.getElementById('eliminateBtn').onclick = eliminateSelected;
+
+      document.getElementById('newRoundBtn').onclick = nextRound;
+      document.getElementById('resetGameBtn').onclick = resetGame;
+
+      document.getElementById('openSettings').onclick = openSettings;
+      document.getElementById('closeSettings').onclick = closeSettings;
+      document.getElementById('saveSettings').onclick = saveSettings;
+
+      document.getElementById('openHowTo').onclick = ()=>document.getElementById('howtoModal').classList.add('open');
+      document.getElementById('closeHowTo').onclick = ()=>document.getElementById('howtoModal').classList.remove('open');
+
+      // Question deck events
+      document.getElementById('qNext').onclick = nextQuestion;
+      document.getElementById('qShow').onclick = toggleAnswer;
+      document.getElementById('qMarkCorrect').onclick = markCorrect;
+      document.getElementById('qMarkWrong').onclick = markWrong;
+      document.getElementById('qCategory').onchange = (e)=> buildDeck(e.target.value);
+      document.getElementById('qShuffle').onclick = ()=> buildDeck(state.deck?.category || 'All');
+
+      // Delegate input name changes
+      document.getElementById('teams').addEventListener('input', (e)=>{
+        if(e.target && e.target.matches('input[data-idx]')){
+          const i = +e.target.dataset.idx;
+          state.teams[i].name = e.target.value.slice(0, 32);
+          persist();
+        }
+      });
+    }
+
+    // --- Init ---
+    load();
+    wire();
+    if(!state.deck || !Array.isArray(state.deck.order) || !state.deck.order.length){ buildDeck('All'); }
+    render();
+
+  
+// Collapsible chain toggle
+const chainEl = document.getElementById('chain');
+const chainToggle = document.getElementById('chainToggle');
+function toggleChain(){
+  const collapsed = chainEl.classList.toggle('collapsed');
+  if(chainToggle){
+    chainToggle.setAttribute('aria-expanded', (!collapsed).toString());
+    chainToggle.textContent = 'Chain ' + (collapsed ? '▸' : '▾');
+  }
+}
+if(chainEl && chainToggle){
+  chainToggle.addEventListener('click', toggleChain);
+  chainToggle.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggleChain(); }
+  });
+  // start collapsed
+  chainToggle.setAttribute('aria-expanded','false');
+  chainToggle.textContent = 'Chain ▸';
+}
+
+</script>
+
+<footer class="footer-credit">🎃🧙 Created by Panagiotis Domvros, English and Drama Teacher, All Rights Reserved 🧙🎃</footer>
+</body>
+</html>
