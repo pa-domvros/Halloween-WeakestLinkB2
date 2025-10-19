@@ -63,7 +63,8 @@
     .btn-success{background:linear-gradient(180deg, rgba(101,212,110,.30), rgba(101,212,110,.14)); border-color:rgba(101,212,110,.55)}
     .btn-purple{background:linear-gradient(180deg, rgba(155,92,255,.30), rgba(155,92,255,.14)); border-color:rgba(155,92,255,.55)}
 
-    main{display:grid; grid-template-columns:1fr; grid-template-areas:"right" "left"; gap:12px; padding:12px clamp(10px, 3vw, 24px); align-items:start}
+    /* MODIFIED: Changed grid-template-areas to "left" "right" to put controls first on small screens */
+    main{display:grid; grid-template-columns:1fr; grid-template-areas:"left" "right"; gap:12px; padding:12px clamp(10px, 3vw, 24px); align-items:start}
     }
 
     /* Left side: Round / Chain / Controls */
@@ -204,27 +205,6 @@ select option:checked{
 
   <main>
     <section class="left">
-      <div class="panel">
-        <div class="timer">
-          <div>
-            <div class="round-badge">Round <span id="roundNum">1</span></div>
-            <div class="time" id="time">02:00</div>
-          </div>
-          <div class="bank">
-            <div>
-              <div style="font-size:12px; color:#eadeff; font-weight:700; letter-spacing:.2px">Bank</div>
-              <strong id="bankTotal">🍬 0</strong>
-            </div>
-            <button class="btn-purple" id="bankBtn" title="Save current chain value to the bank">Bank</button>
-          </div>
-        </div>
-        <div class="timer-controls">
-          <button class="btn-primary" id="startBtn">Start ⏱️</button>
-          <button class="btn-ghost" id="pauseBtn">Pause ⏸️</button>
-          <button class="btn-ghost" id="resetTimerBtn">Reset ⟲</button>
-        </div>
-      </div>
-
       <div class="panel" id="questionPanel">
         <h3>Question Deck</h3>
         <div style="display:grid; gap:8px">
@@ -262,6 +242,27 @@ select option:checked{
           </div>
         </div>
       </div>
+      
+      <div class="panel">
+        <div class="timer">
+          <div>
+            <div class="round-badge">Round <span id="roundNum">1</span></div>
+            <div class="time" id="time">02:00</div>
+          </div>
+          <div class="bank">
+            <div>
+              <div style="font-size:12px; color:#eadeff; font-weight:700; letter-spacing:.2px">Bank</div>
+              <strong id="bankTotal">🍬 0</strong>
+            </div>
+            <button class="btn-purple" id="bankBtn" title="Save current chain value to the bank">Bank</button>
+          </div>
+        </div>
+        <div class="timer-controls">
+          <button class="btn-primary" id="startBtn">Start ⏱️</button>
+          <button class="btn-ghost" id="pauseBtn">Pause ⏸️</button>
+          <button class="btn-ghost" id="resetTimerBtn">Reset ⟲</button>
+        </div>
+      </div>
 
       <div class="panel">
         <h3 class="chain-toggle" id="chainToggle" role="button" tabindex="0" aria-expanded="false">Chain ▸</h3>
@@ -292,7 +293,6 @@ select option:checked{
     </section>
   </main>
 
-  <!-- Voting Modal -->
   <div class="modal" id="voteModal">
     <div class="modal-card">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px">
@@ -312,7 +312,6 @@ select option:checked{
     </div>
   </div>
 
-  <!-- Settings Modal -->
   <div class="modal" id="settingsModal">
     <div class="modal-card">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px">
@@ -340,7 +339,6 @@ select option:checked{
     </div>
   </div>
 
-  <!-- How To Modal -->
   <div class="modal" id="howtoModal">
     <div class="modal-card">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px">
@@ -372,6 +370,9 @@ select option:checked{
   </div>
 
   <img class="ghost" alt="ghost" src="data:image/svg+xml;utf8,<?xml version='1.0' encoding='UTF-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'><path fill='%23ffffff' d='M128 16c-44 0-80 36-80 80v120c0 8 8 12 16 8l24-12l24 12l24-12l24 12l24-12l24 12c8 4 16 0 16-8V96c0-44-36-80-80-80z' opacity='.18'/></svg>"/>
+
+  <audio id="successSound" src="success.mp3" preload="auto"></audio>
+  <audio id="failSound" src="fail.mp3" preload="auto"></audio>
 
   <script>
     const LS_KEY = 'weakestlink-halloween-v1';
@@ -564,6 +565,7 @@ select option:checked{
   {cat:'Halloween Trivia', q:'The use of pumpkins for jack-o’-lanterns was popularized largely in:', a:'United States'},
 ];
 
+
     const state = {
       round: 1,
       roundSeconds: 120,
@@ -711,6 +713,7 @@ select option:checked{
 
     function buildDeck(category){
       const cat = category || 'All';
+      // NOTE: QUESTIONS must be defined (pasted in place of the placeholder above)
       const order = QUESTIONS.map((q,i)=> (cat==='All' || q.cat===cat) ? i : null).filter(i=>i!==null);
       shuffle(order);
       state.deck = state.deck || { category:'All', order:[], idx:-1, showAnswer:false };
@@ -720,7 +723,8 @@ select option:checked{
 
     function currentQA(){
       const idx = state.deck?.order?.[state.deck.idx];
-      return (idx!==undefined) ? QUESTIONS[idx] : null;
+      // NOTE: QUESTIONS must be defined
+      return (idx!==undefined) ? QUESTIONS[idx] : null; 
     }
 
     function nextQuestion(){
@@ -755,7 +759,8 @@ function getOptionsFor(idx){
   state.deck.mcq = state.deck.mcq || {};
   if(state.deck.mcq[idx]) return state.deck.mcq[idx].slice();
 
-  const qa = QUESTIONS[idx];
+  // NOTE: QUESTIONS must be defined
+  const qa = QUESTIONS[idx]; 
   // pool of distractors: same category answers, excluding exact match
   const pool = QUESTIONS.filter(q=> q.cat===qa.cat && q.a!==qa.a).map(q=> q.a);
   // Fallback: if not enough in same category, allow global pool
@@ -814,6 +819,17 @@ function renderOptions(){
   wrap.style.display = 'block';
 }
 
+    // --- Audio Playback Helper (NEW) ---
+    function playSound(id) {
+        const audio = document.getElementById(id);
+        if (audio) {
+            // Stop and rewind before playing to allow quick consecutive plays
+            audio.pause();
+            audio.currentTime = 0;
+            audio.play().catch(e => console.error("Error playing sound:", e));
+        }
+    }
+
 
     // --- Game mechanics ---
     function startTimer(){
@@ -854,6 +870,10 @@ function renderOptions(){
       if(!t.active) { nextTeam(); return; }
       t.correct++;
       if(state.chainIndex < state.chain.length - 1){ state.chainIndex++; }
+      
+      // Play success sound (MODIFIED)
+      playSound('successSound');
+
       render();
       nextTeam();
     }
@@ -863,6 +883,10 @@ function renderOptions(){
       if(!t.active) { nextTeam(); return; }
       t.wrong++;
       state.chainIndex = -1; // reset
+
+      // Play fail sound (MODIFIED)
+      playSound('failSound');
+
       render();
       nextTeam();
     }
@@ -1063,7 +1087,12 @@ function renderOptions(){
     // --- Init ---
     load();
     wire();
-    if(!state.deck || !Array.isArray(state.deck.order) || !state.deck.order.length){ buildDeck('All'); }
+    // Ensure QUESTIONS is not empty before attempting to build the deck
+    if(typeof QUESTIONS !== 'undefined' && QUESTIONS.length > 0) {
+        if(!state.deck || !Array.isArray(state.deck.order) || !state.deck.order.length){ buildDeck('All'); }
+    } else {
+        console.warn("QUESTIONS array is empty. Please insert your question data.");
+    }
     render();
 
   
